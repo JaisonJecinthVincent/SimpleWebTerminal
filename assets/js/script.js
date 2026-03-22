@@ -1,6 +1,42 @@
 const APIURL = "https://api.github.com/users/ernaneJ";
+const VERSION_URL = "version.json";
+
 let user;
 let repositories;
+
+let currentDeployedVersion = null;
+
+async function watchDeploymentVersion() {
+    try {
+        const response = await fetch(`${VERSION_URL}?ts=${Date.now()}`, {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const metadata = await response.json();
+        if (!metadata || !metadata.version) {
+            return;
+        }
+
+        if (currentDeployedVersion === null) {
+            currentDeployedVersion = metadata.version;
+            return;
+        }
+
+        if (currentDeployedVersion !== metadata.version) {
+            window.location.reload();
+        }
+    } catch (error) {
+        // Ignore polling errors to keep terminal interactions unaffected.
+    }
+}
+
+watchDeploymentVersion();
+setInterval(watchDeploymentVersion, 15000);
+
 const GithubData = async ()=>{
     const resp = await fetch(APIURL);
     const respData = await resp.json();
