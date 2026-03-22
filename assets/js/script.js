@@ -131,7 +131,8 @@ function exec(action){
                 PROJECTS<br/>
                 PROFILE<br/>
                 CONTACT<br/>
-                WEB-TERMINAL --V
+                WEB-TERMINAL --V<BR/>
+                TIME
             </div>
             <div>
                 Clear all screen content <br>

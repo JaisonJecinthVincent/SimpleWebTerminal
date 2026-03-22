@@ -77,7 +77,7 @@ Example of available commands:
 
 ---
 
-## Jenkins CI/CD (SCM Polling Auto-Deploy)
+## Jenkins CI/CD (Docker Mandatory)
 
 Use the included `Jenkinsfile` to run the pipeline automatically using SCM polling.
 
@@ -99,14 +99,9 @@ Use the included `Jenkinsfile` to run the pipeline automatically using SCM polli
   - For true change-based polling, use `Pipeline script from SCM` (job-level SCM context).
 
 4. Configure job parameters:
-  - `DOCKER_DEPLOY_ENABLED`: set `true` to deploy as container (recommended for automatic web update).
   - `DOCKER_IMAGE_NAME`: image name (for example `simple-web-terminal`).
   - `DOCKER_CONTAINER_NAME`: container name (for example `simple-web-terminal`).
   - `DOCKER_HOST_PORT`: host port for website (for example `8081`).
-  - `DEPLOY_ENABLED`: set to true to publish files.
-  - `DEPLOY_PATH`: absolute path served by your web server.
-    - Example Windows IIS: `C:/inetpub/wwwroot/info-terminal`
-    - Example Linux Nginx/Apache: `/var/www/html/info-terminal`
   - `REPO_URL`: used only if the job is running in inline Pipeline mode.
   - `BRANCH_SPEC`: branch pattern for fallback checkout (for example `*/master`).
   - `GIT_CREDENTIALS_ID`: optional credentials ID for private repositories.
@@ -121,16 +116,14 @@ Pipeline behavior:
 - Validate required static files
 - Generate `version.json` metadata per build
 - Archive build artifacts
-- Build Docker image and restart container when `DOCKER_DEPLOY_ENABLED=true`
-- Copy static files to `DEPLOY_PATH` when deployment is enabled
+- Build Docker image on every run
+- Restart Docker container on every run
 
 ### Automatic browser refresh after deployment
 
 The app now polls `version.json` every 15 seconds. When Jenkins deploys a newer build (new version), open browser tabs automatically reload and show the latest changes.
 
-This works for both:
-- Docker deployment (`DOCKER_DEPLOY_ENABLED=true`)
-- Static file deployment (`DEPLOY_ENABLED=true` with a valid `DEPLOY_PATH`)
+This works with Docker deployment on every pipeline run.
 
 <p align="center">
 Developed with ❤ by <a target="_blank" href="https://ernanej.github.io/my-linktree/">Ernane Ferreira</a>. 👋🏻<br/>

@@ -13,16 +13,6 @@ pipeline {
     }
 
     parameters {
-        booleanParam(
-            name: 'DEPLOY_ENABLED',
-            defaultValue: true,
-            description: 'If true, files are copied to DEPLOY_PATH after validation.'
-        )
-        string(
-            name: 'DEPLOY_PATH',
-            defaultValue: '',
-            description: 'Absolute path served by your web server (for example C:/inetpub/wwwroot/info-terminal or /var/www/html/info-terminal).'
-        )
         string(
             name: 'REPO_URL',
             defaultValue: 'https://github.com/JaisonJecinthVincent/SimpleWebTerminal.git',
@@ -37,11 +27,6 @@ pipeline {
             name: 'GIT_CREDENTIALS_ID',
             defaultValue: '',
             description: 'Optional Jenkins credentials ID for private repositories when fallback checkout is used.'
-        )
-        booleanParam(
-            name: 'DOCKER_DEPLOY_ENABLED',
-            defaultValue: false,
-            description: 'If true, pipeline builds a Docker image and deploys/restarts a container.'
         )
         string(
             name: 'DOCKER_IMAGE_NAME',
@@ -142,14 +127,12 @@ pipeline {
         }
 
         stage('Build Docker image') {
-            when {
-                expression { params.DOCKER_DEPLOY_ENABLED }
-            }
             steps {
                 script {
                     def imageName = params.DOCKER_IMAGE_NAME?.trim() ?: 'simple-web-terminal'
 
                     if (isUnix()) {
+                        sh 'docker --version'
                         sh "docker build -t ${imageName}:latest ."
                     } else {
                         withEnv(["IMAGE_NAME=${imageName}"]) {
@@ -159,7 +142,9 @@ pipeline {
                                     throw "Docker CLI not found on Jenkins agent."
                                 }
 
-                                docker build -t "$env:IMAGE_NAME:latest" .
+                                $imageTag = "$($env:IMAGE_NAME):latest"
+                                docker version
+                                docker build -t $imageTag .
                             '''
                         }
                     }
@@ -168,9 +153,6 @@ pipeline {
         }
 
         stage('Deploy Docker container') {
-            when {
-                expression { params.DOCKER_DEPLOY_ENABLED }
-            }
             steps {
                 script {
                     def imageName = params.DOCKER_IMAGE_NAME?.trim() ?: 'simple-web-terminal'
@@ -225,61 +207,10 @@ pipeline {
                                     docker rm -f $env:CONTAINER_NAME | Out-Null
                                 }
 
-                                docker run -d --name $env:CONTAINER_NAME -p "$env:HOST_PORT`:80" --restart unless-stopped "$env:IMAGE_NAME`:latest" | Out-Null
+                                $imageTag = "$($env:IMAGE_NAME):latest"
+                                $portMapping = "$($env:HOST_PORT):80"
+                                docker run -d --name $env:CONTAINER_NAME -p $portMapping --restart unless-stopped $imageTag | Out-Null
                                 Write-Host "Container deployed at http://localhost:$env:HOST_PORT"
-                            '''
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Deploy static files') {
-            when {
-                expression { !params.DOCKER_DEPLOY_ENABLED && params.DEPLOY_ENABLED && params.DEPLOY_PATH?.trim() }
-            }
-            steps {
-                script {
-                    def deployPath = params.DEPLOY_PATH.trim()
-
-                    if (isUnix()) {
-                        withEnv(["TARGET_PATH=${deployPath}"]) {
-                            sh '''
-                                set -eu
-                                mkdir -p "$TARGET_PATH"
-
-                                if [ -d "$TARGET_PATH/assets" ]; then
-                                    rm -rf "$TARGET_PATH/assets"
-                                fi
-
-                                cp -R assets "$TARGET_PATH/assets"
-                                cp index.html "$TARGET_PATH/index.html"
-
-                                if [ -f README.md ]; then
-                                    cp README.md "$TARGET_PATH/README.md"
-                                fi
-                            '''
-                        }
-                    } else {
-                        withEnv(["TARGET_PATH=${deployPath}"]) {
-                            powershell '''
-                                $ErrorActionPreference = "Stop"
-
-                                if (-not (Test-Path $env:TARGET_PATH)) {
-                                    New-Item -ItemType Directory -Path $env:TARGET_PATH -Force | Out-Null
-                                }
-
-                                $targetAssets = Join-Path $env:TARGET_PATH "assets"
-                                if (Test-Path $targetAssets) {
-                                    Remove-Item $targetAssets -Recurse -Force
-                                }
-
-                                Copy-Item "assets" $targetAssets -Recurse -Force
-                                Copy-Item "index.html" (Join-Path $env:TARGET_PATH "index.html") -Force
-
-                                if (Test-Path "README.md") {
-                                    Copy-Item "README.md" (Join-Path $env:TARGET_PATH "README.md") -Force
-                                }
                             '''
                         }
                     }
