@@ -122,7 +122,7 @@ pipeline {
 
         stage('Archive artifacts') {
             steps {
-                archiveArtifacts artifacts: 'index.html,assets/**,README.md,version.json,Dockerfile,.dockerignore', fingerprint: true
+                archiveArtifacts artifacts: 'index.html,assets/**,README.md,version.json,Dockerfile,.dockerignore,nginx.conf', fingerprint: true
             }
         }
 
@@ -133,7 +133,7 @@ pipeline {
 
                     if (isUnix()) {
                         sh 'docker --version'
-                        sh "docker build -t ${imageName}:latest ."
+                        sh "docker build --pull --no-cache -t ${imageName}:latest ."
                     } else {
                         withEnv(["IMAGE_NAME=${imageName}"]) {
                             powershell '''
@@ -144,7 +144,7 @@ pipeline {
 
                                 $imageTag = "$($env:IMAGE_NAME):latest"
                                 docker version
-                                docker build -t $imageTag .
+                                docker build --pull --no-cache -t $imageTag .
                             '''
                         }
                     }

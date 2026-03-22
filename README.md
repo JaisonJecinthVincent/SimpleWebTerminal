@@ -116,12 +116,14 @@ Pipeline behavior:
 - Validate required static files
 - Generate `version.json` metadata per build
 - Archive build artifacts
-- Build Docker image on every run
+- Build Docker image on every run (`--pull --no-cache`)
 - Restart Docker container on every run
 
 ### Automatic browser refresh after deployment
 
 The app now polls `version.json` every 15 seconds. When Jenkins deploys a newer build (new version), open browser tabs automatically reload and show the latest changes.
+
+The container also serves no-cache headers through `nginx.conf` to reduce stale browser content after deployment.
 
 This works with Docker deployment on every pipeline run.
 
