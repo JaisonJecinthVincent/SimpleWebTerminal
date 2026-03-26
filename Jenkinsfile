@@ -15,7 +15,7 @@ pipeline {
     parameters {
         string(
             name: 'REPO_URL',
-                defaultValue: 'https://github.com/JaisonJecinthVincent/Info-with-web-terminal.git',
+                defaultValue: ' https://github.com/JaisonJecinthVincent/SimpleWebTerminal.git',
                 description: 'Git repository URL.'
         )
         string(
