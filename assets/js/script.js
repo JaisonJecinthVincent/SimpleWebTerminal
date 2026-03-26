@@ -61,14 +61,19 @@ document.body.addEventListener('keypress', e => {
         exec(text);
         textArea.value = '';
         main.scrollTop = main.scrollHeight;
-    }
-  });
+            try {
+                const resp = await fetch(APIURL);
+                const respData = await resp.json();
 
-let r=0;
-function exec(action){
-    const rawAction = action || '';
-    const normalizedAction = rawAction.trim().toLowerCase();
+                const repos = await fetch(APIURL+"/repos");
+                const reposData = await repos.json();
 
+                user = (resp && resp.ok) ? respData : null;
+                repositories = (repos && repos.ok && Array.isArray(reposData)) ? reposData : [];
+            } catch (error) {
+                user = null;
+                repositories = [];
+            }
     let element = document.createElement('div');
     element.innerHTML = "User:~ Web-Terminal$ "+rawAction+"<br>";
     main.appendChild(element);
@@ -168,6 +173,13 @@ function exec(action){
             document.querySelectorAll('.projects a')
                 .forEach(rep => {
                     rep.style.color ="white";
+                    if(!Array.isArray(repositories) || repositories.length === 0){
+                        const noProjects = document.createElement('div');
+                        noProjects.innerText = 'Unable to load repositories right now. Please try again in a few seconds.';
+                        main.appendChild(noProjects);
+                        break;
+                    }
+
                     rep.classList.toggle('repository');
                 });
             break;
@@ -196,6 +208,13 @@ function exec(action){
             const help = document.createElement("div");
             help.classList.add('help')
             help.innerHTML = `
+                    if(!user || !user.html_url){
+                        const noProfile = document.createElement('div');
+                        noProfile.innerText = 'Unable to load profile right now. Please try again in a few seconds.';
+                        main.appendChild(noProfile);
+                        break;
+                    }
+
             <div>
                 CLEAR<br/>
                 ABOUT<br/>
