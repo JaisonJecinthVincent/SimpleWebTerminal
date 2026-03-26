@@ -15,7 +15,7 @@ pipeline {
     parameters {
         string(
             name: 'REPO_URL',
-            defaultValue: 'https://github.com/JaisonJecinthVincent/SimpleWebTerminal.git',
+            defaultValue: 'https://github.com/JaisonJecinthVincent/Info-with-web-terminal.git',
             description: 'Git repository URL used when job runs as inline Pipeline script (no SCM context).'
         )
         string(
@@ -30,17 +30,17 @@ pipeline {
         )
         string(
             name: 'DOCKER_IMAGE_NAME',
-            defaultValue: 'simple-web-terminal',
+            defaultValue: 'info-web-terminal',
             description: 'Docker image name used for build and run.'
         )
         string(
             name: 'DOCKER_CONTAINER_NAME',
-            defaultValue: 'simple-web-terminal',
+            defaultValue: 'info-web-terminal',
             description: 'Container name used during deployment.'
         )
         string(
             name: 'DOCKER_HOST_PORT',
-            defaultValue: '8081',
+            defaultValue: '8080',
             description: 'Host port mapped to container port 80.'
         )
     }
