@@ -15,8 +15,8 @@ pipeline {
     parameters {
         string(
             name: 'REPO_URL',
-            defaultValue: 'https://github.com/JaisonJecinthVincent/Info-with-web-terminal.git',
-            description: 'Git repository URL (use public HTTPS for this public repo).'
+                defaultValue: 'https://github.com/JaisonJecinthVincent/Info-with-web-terminal.git',
+                description: 'Git repository URL.'
         )
         string(
             name: 'BRANCH_SPEC',
@@ -24,9 +24,9 @@ pipeline {
             description: 'Branch spec used for checkout (for example */master or */main).'
         )
         string(
-            name: 'GIT_CREDENTIALS_ID',
-            defaultValue: 'github-token',
-            description: 'Jenkins credentials ID for GitHub authentication (created in Jenkins security config).'
+                name: 'GIT_CREDENTIALS_ID',
+                defaultValue: 'github-token',
+                description: 'Jenkins credentials ID for GitHub authentication.'
         )
         string(
             name: 'DOCKER_IMAGE_NAME',
@@ -70,16 +70,19 @@ pipeline {
 
                         echo "Checking out repository: ${repoUrl} (branch: ${branchSpec}) with credentials: ${credentialsId}"
                         
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: branchSpec]],
-                            doGenerateSubmoduleConfigurations: false,
-                            extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]],
-                            userRemoteConfigs: [[
-                                url: repoUrl,
-                                credentialsId: credentialsId
-                            ]]
-                        ])
+                        
+                        withCredentials([usernamePassword(credentialsId: credentialsId, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                            // Inject credentials into git URL for authentication
+                            def authUrl = repoUrl.replaceFirst('https://', "https://${GIT_USER}:${GIT_PASS}@")
+                            
+                            checkout([
+                                $class: 'GitSCM',
+                                branches: [[name: branchSpec]],
+                                doGenerateSubmoduleConfigurations: false,
+                                extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]],
+                                userRemoteConfigs: [[url: authUrl]]
+                            ])
+                        }
 
                         echo "Checkout complete from ${repoUrl} (${branchSpec})."
                     }
