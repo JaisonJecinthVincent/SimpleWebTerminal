@@ -16,17 +16,17 @@ pipeline {
         string(
             name: 'REPO_URL',
             defaultValue: 'https://github.com/JaisonJecinthVincent/Info-with-web-terminal.git',
-            description: 'Git repository URL used when job runs as inline Pipeline script (no SCM context).'
+            description: 'Git repository URL (HTTPS for public repos, SSH or HTTPS with credentials for private).'
         )
         string(
             name: 'BRANCH_SPEC',
             defaultValue: '*/master',
-            description: 'Branch spec used for explicit checkout fallback (for example */master or */main).'
+            description: 'Branch spec used for checkout (for example */master or */main).'
         )
         string(
             name: 'GIT_CREDENTIALS_ID',
             defaultValue: '',
-            description: 'Optional Jenkins credentials ID for private repositories when fallback checkout is used.'
+            description: 'Optional Jenkins credentials ID for private repositories. Leave empty for public repos.'
         )
         string(
             name: 'DOCKER_IMAGE_NAME',
@@ -69,8 +69,13 @@ pipeline {
                         }
 
                         def remoteConfig = [url: repoUrl]
+                        
+                        // Only add credentials if provided (for private repos)
                         if (credentialsId) {
                             remoteConfig.credentialsId = credentialsId
+                            echo "Checking out with credentials ID: ${credentialsId}"
+                        } else {
+                            echo "Checking out public repository without credentials."
                         }
 
                         checkout([
@@ -129,7 +134,7 @@ pipeline {
         stage('Build Docker image') {
             steps {
                 script {
-                    def imageName = params.DOCKER_IMAGE_NAME?.trim() ?: 'simple-web-terminal'
+                    def imageName = params.DOCKER_IMAGE_NAME?.trim() ?: 'info-web-terminal'
 
                     if (isUnix()) {
                         sh 'docker --version'
@@ -155,9 +160,9 @@ pipeline {
         stage('Deploy Docker container') {
             steps {
                 script {
-                    def imageName = params.DOCKER_IMAGE_NAME?.trim() ?: 'simple-web-terminal'
-                    def containerName = params.DOCKER_CONTAINER_NAME?.trim() ?: 'simple-web-terminal'
-                    def hostPort = params.DOCKER_HOST_PORT?.trim() ?: '8081'
+                    def imageName = params.DOCKER_IMAGE_NAME?.trim() ?: 'info-web-terminal'
+                    def containerName = params.DOCKER_CONTAINER_NAME?.trim() ?: 'info-web-terminal'
+                    def hostPort = params.DOCKER_HOST_PORT?.trim() ?: '8080'
 
                     if (!(hostPort ==~ /^[0-9]{2,5}$/)) {
                         error('DOCKER_HOST_PORT must be a numeric port value (for example 8081).')
