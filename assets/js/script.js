@@ -1,4 +1,4 @@
-const APIURL = "https://api.github.com/users/ernaneJ";
+const APIURL = "https://api.github.com/users/github";
 const VERSION_URL = "version.json";
 
 let user;
@@ -70,7 +70,7 @@ function exec(action){
     const normalizedAction = rawAction.trim().toLowerCase();
 
     let element = document.createElement('div');
-    element.innerHTML = "Ernane:~ Web-Terminal$ "+rawAction+"<br>";
+    element.innerHTML = "User:~ Web-Terminal$ "+rawAction+"<br>";
     main.appendChild(element);
     if(normalizedAction.startsWith('echo ')){
         const echoText = rawAction.slice(rawAction.toLowerCase().indexOf('echo ') + 5);
@@ -112,7 +112,7 @@ function exec(action){
         case "about":
             const about = document.createElement('div');
             about.innerHTML = `
-                Web-Terminal portfolio interface by Ernane.<br/>
+                Web-Terminal portfolio interface.<br/>
                 Type <b>help</b> to view available commands.
             `;
             main.appendChild(about);
@@ -135,7 +135,7 @@ function exec(action){
             break;
         case "pwd":
             const pwd = document.createElement('div');
-            pwd.innerText = '/home/ernane/web-terminal';
+            pwd.innerText = '/home/user/web-terminal';
             main.appendChild(pwd);
             break;
         case "ls":
@@ -211,7 +211,7 @@ function exec(action){
                 CONTACT<br/>
                 WEB-TERMINAL --V<BR/>
                 TIME<BR/>
-                WOMP
+               
             </div>
             <div>
                 Clear all screen content <br>
@@ -223,7 +223,7 @@ function exec(action){
                 Shows current virtual directory path<br>
                 Lists available virtual files/sections<br>
                 Shows basic README content<br>
-                Shows the top 10 projects from Ernane's profile on github <br>
+                Shows the top 10 projects from the configured GitHub profile <br>
                 Shows a preview of the profile on GitHub.<br>
                 Shows contacts like email and cell phone number<br>
                 Shows the version of the web terminal
@@ -239,7 +239,7 @@ function exec(action){
                     <i class="fas fa-envelope"></i>
                     <b>Email</b>: 
                 </label>
-                <a href="mailto:ernane.junior25@gmail.com?subject=Hello!!">ernane.junior25@gmail.com</a><br>
+                <a href="mailto:contact@example.com?subject=Hello!!">contact@example.com</a><br>
 
                 <label>
                     <i class="fas fa-phone-alt"></i> 
@@ -247,12 +247,12 @@ function exec(action){
                 </label> 
                 <a href=”tel:+5584992207080″>+55 (84) 9 9220 - 7080</a><br/><br/>
 
-                <p>Or if you prefer, check out the social media by <a target="_blank" href="https://ernanej.github.io/my-linktree/">clicking here</a> or by running the command: <span>social media</span></p>
+                <p>Or if you prefer, check out the social media by <a target="_blank" href="https://example.com">clicking here</a> or by running the command: <span>social media</span></p>
             `;
             main.appendChild(contact);
             break;
         case "social media":
-            window.open('https://ernanej.github.io/my-linktree/');
+            window.open('https://example.com');
             break;
         case "web-terminal --v":
             const v = document.createElement("div");
@@ -262,7 +262,7 @@ function exec(action){
             main.appendChild(v);
             break;
         default:
-        element.innerHTML = `Ernane:~ Web-Terminal$  ${rawAction}<br>'${rawAction}' is not recognized as an internal or external command, an operable program or a batch file.`
+        element.innerHTML = `User:~ Web-Terminal$  ${rawAction}<br>'${rawAction}' is not recognized as an internal or external command, an operable program or a batch file.`
         break;
     }
 }

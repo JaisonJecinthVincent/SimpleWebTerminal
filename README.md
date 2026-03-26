@@ -56,11 +56,11 @@ Ao acessar você terá a possibilidade de utilizar o comando help para conhecer 
 Exemplo de comandos disponíveis:
 
 - `CLEAR`: Limpar todo o conteúdo da tela
-- `PROJETOS`: mostra os 10 principais projetos do perfil de Ernane no github
+- `PROJETOS`: mostra os 10 principais projetos do perfil configurado no github
 - `PROFILE`: mostra uma prévia do perfil no GitHub.
 - `CONTACT`: Mostra contatos como e-mail e número de telefone celular
 
-<p> <a target="_blank" href="https://ernanej.github.io/Info-with-web-terminal/"> Clique aqui </a> para acessar o sistema. </p>
+<p> Build and run locally with Docker to access the system. </p>
 
 <hr>
 </details>
@@ -69,11 +69,11 @@ Accessing you will have the possibility to use the `help` command to get to know
 
 Example of available commands:
 - `CLEAR`: Clear all screen content
-- `PROJECTS`: Shows the top 10 projects from Ernane's profile on github
+- `PROJECTS`: Shows the top 10 projects from the configured GitHub profile
 - `PROFILE`: Shows a preview of the profile on GitHub.
 - `CONTACT`: Shows contacts like email and cell phone number
 
-<p> <a target="_blank" href="https://ernanej.github.io/Info-with-web-terminal/">Click here</a> to access the system.</p>
+<p> Build and run locally with Docker to access the system.</p>
 
 ---
 
@@ -128,4 +128,4 @@ The container also serves no-cache headers through `nginx.conf` to reduce stale 
 This works with Docker deployment on every pipeline run.
 
 <p align="center">
-Developed with ❤ by <a target="_blank" href="https://ernanej.github.io/my-linktree/">Ernane Ferreira</a>. 👋🏻<br/>
+Developed with ❤ by <a target="_blank" href="https://example.com">Project Team</a>. 👋🏻<br/>
