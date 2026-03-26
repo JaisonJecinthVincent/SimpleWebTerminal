@@ -124,7 +124,8 @@ function showHelp() {
         WHOAMI<br>
         PROJECTS<br>
         PROFILE<br>
-        HELP
+        HELP<br>
+        WELP<br>
     `;
     main.appendChild(help);
 }
