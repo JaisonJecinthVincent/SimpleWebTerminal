@@ -1,5 +1,6 @@
 const APIURL = "https://api.github.com/users/JaisonJecinthVincent";
 const VERSION_URL = "version.json";
+const GITHUB_TOKEN = localStorage.getItem('github_token') || ''; // Optional: add token for higher rate limits
 
 let user;
 let repositories;
@@ -38,14 +39,45 @@ watchDeploymentVersion();
 setInterval(watchDeploymentVersion, 15000);
 
 const GithubData = async ()=>{
-    const resp = await fetch(APIURL);
-    const respData = await resp.json();
+    try {
+        console.log('Fetching GitHub user data from:', APIURL);
+        
+        const fetchOptions = {};
+        if(GITHUB_TOKEN){
+            fetchOptions.headers = {
+                'Authorization': `token ${GITHUB_TOKEN}`
+            };
+        }
+        
+        const resp = await fetch(APIURL, fetchOptions);
+        const respData = await resp.json();
 
-    const repos = await fetch(APIURL+"/repos");
-    const reposData = await repos.json();
+        if(!resp.ok){
+            console.error('GitHub API error:', resp.status, respData.message);
+            user = null;
+            repositories = [];
+            return;
+        }
 
-    user = respData;
-    repositories = reposData;
+        console.log('GitHub user data loaded:', respData.login);
+        const repos = await fetch(APIURL+"/repos", fetchOptions);
+        const reposData = await repos.json();
+
+        if(!repos.ok){
+            console.error('GitHub repos API error:', repos.status);
+            user = respData;
+            repositories = [];
+            return;
+        }
+
+        console.log('GitHub repos loaded:', reposData.length, 'repositories');
+        user = respData;
+        repositories = reposData;
+    } catch (error) {
+        console.error('GitHub data fetch error:', error.message);
+        user = null;
+        repositories = [];
+    }
 };GithubData();
 
 const textArea = document.getElementById('textArea');
@@ -107,6 +139,22 @@ document.body.addEventListener('keypress', e => {
         }
 
         main.appendChild(cat);
+        return;
+    }
+
+    if(normalizedAction.startsWith('set-token ')){
+        const token = rawAction.slice(rawAction.toLowerCase().indexOf('set-token ') + 10).trim();
+        if(token){
+            localStorage.setItem('github_token', token);
+            const tokenMsg = document.createElement('div');
+            tokenMsg.innerText = 'GitHub token saved! Reload page to use it.';
+            main.appendChild(tokenMsg);
+        }else{
+            localStorage.removeItem('github_token');
+            const tokenMsg = document.createElement('div');
+            tokenMsg.innerText = 'GitHub token cleared.';
+            main.appendChild(tokenMsg);
+        }
         return;
     }
 
@@ -173,13 +221,6 @@ document.body.addEventListener('keypress', e => {
             document.querySelectorAll('.projects a')
                 .forEach(rep => {
                     rep.style.color ="white";
-                    if(!Array.isArray(repositories) || repositories.length === 0){
-                        const noProjects = document.createElement('div');
-                        noProjects.innerText = 'Unable to load repositories right now. Please try again in a few seconds.';
-                        main.appendChild(noProjects);
-                        break;
-                    }
-
                     rep.classList.toggle('repository');
                 });
             break;
@@ -280,6 +321,11 @@ document.body.addEventListener('keypress', e => {
             `;
             main.appendChild(v);
             break;
+        case "set-token":
+            const setTokenMsg = document.createElement("div");
+            setTokenMsg.innerText = 'Token cleared. Use: set-token [YOUR_TOKEN]';
+            main.appendChild(setTokenMsg);
+            break;
         default:
         element.innerHTML = `User:~ Web-Terminal$  ${rawAction}<br>'${rawAction}' is not recognized as an internal or external command, an operable program or a batch file.`
         break;
@@ -288,6 +334,13 @@ document.body.addEventListener('keypress', e => {
 
 function top10Repositories(){
     const reposEl = document.getElementById(`repos${r}`);
+    
+    if(!Array.isArray(repositories) || repositories.length === 0){
+        reposEl.innerText = 'No repositories available.';
+        r++;
+        return;
+    }
+    
     repositories
         .sort((a, b) => b.stargazers_count - a.stargazers_count)
         .slice(0, 10)
