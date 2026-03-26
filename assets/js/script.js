@@ -1,4 +1,4 @@
-const APIURL = "https://api.github.com/users/github";
+const APIURL = "https://api.github.com/users/JaisonJecinthVincent";
 const VERSION_URL = "version.json";
 
 let user;
