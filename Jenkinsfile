@@ -16,7 +16,7 @@ pipeline {
         string(
             name: 'REPO_URL',
             defaultValue: 'https://github.com/JaisonJecinthVincent/Info-with-web-terminal.git',
-            description: 'Git repository URL (HTTPS for public repos, SSH or HTTPS with credentials for private).'
+            description: 'Git repository URL (use public HTTPS for this public repo).'
         )
         string(
             name: 'BRANCH_SPEC',
@@ -25,8 +25,8 @@ pipeline {
         )
         string(
             name: 'GIT_CREDENTIALS_ID',
-            defaultValue: '',
-            description: 'Optional Jenkins credentials ID for private repositories. Leave empty for public repos.'
+            defaultValue: 'github-token',
+            description: 'Jenkins credentials ID for GitHub authentication (created in Jenkins security config).'
         )
         string(
             name: 'DOCKER_IMAGE_NAME',
@@ -62,28 +62,23 @@ pipeline {
                     if (!checkoutCompleted) {
                         def repoUrl = params.REPO_URL?.trim()
                         def branchSpec = params.BRANCH_SPEC?.trim() ? params.BRANCH_SPEC.trim() : '*/master'
-                        def credentialsId = params.GIT_CREDENTIALS_ID?.trim()
+                        def credentialsId = params.GIT_CREDENTIALS_ID?.trim() ?: 'github-token'
 
                         if (!repoUrl) {
                             error('REPO_URL is required when this job runs as inline Pipeline script.')
                         }
 
-                        def remoteConfig = [url: repoUrl]
+                        echo "Checking out repository: ${repoUrl} (branch: ${branchSpec}) with credentials: ${credentialsId}"
                         
-                        // Only add credentials if provided (for private repos)
-                        if (credentialsId) {
-                            remoteConfig.credentialsId = credentialsId
-                            echo "Checking out with credentials ID: ${credentialsId}"
-                        } else {
-                            echo "Checking out public repository without credentials."
-                        }
-
                         checkout([
                             $class: 'GitSCM',
                             branches: [[name: branchSpec]],
                             doGenerateSubmoduleConfigurations: false,
-                            extensions: [],
-                            userRemoteConfigs: [remoteConfig]
+                            extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]],
+                            userRemoteConfigs: [[
+                                url: repoUrl,
+                                credentialsId: credentialsId
+                            ]]
                         ])
 
                         echo "Checkout complete from ${repoUrl} (${branchSpec})."
