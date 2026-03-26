@@ -66,12 +66,82 @@ document.body.addEventListener('keypress', e => {
 
 let r=0;
 function exec(action){
+    const rawAction = action || '';
+    const normalizedAction = rawAction.trim().toLowerCase();
+
     let element = document.createElement('div');
-    element.innerHTML = "Ernane:~ Web-Terminal$ "+action+"<br>";
+    element.innerHTML = "Ernane:~ Web-Terminal$ "+rawAction+"<br>";
     main.appendChild(element);
-    switch (action.toLowerCase()) {
+    if(normalizedAction.startsWith('echo ')){
+        const echoText = rawAction.slice(rawAction.toLowerCase().indexOf('echo ') + 5);
+        const echo = document.createElement('div');
+        echo.innerText = echoText;
+        main.appendChild(echo);
+        return;
+    }
+
+    if(normalizedAction === 'echo'){
+        const echo = document.createElement('div');
+        echo.innerText = '';
+        main.appendChild(echo);
+        return;
+    }
+
+    if(normalizedAction.startsWith('cat ')){
+        const fileName = rawAction.slice(rawAction.toLowerCase().indexOf('cat ') + 4).trim().toLowerCase();
+        const cat = document.createElement('div');
+
+        if(fileName === 'readme.md' || fileName === 'readme'){
+            cat.innerHTML = `
+                INFO-WITH-WEB-TERMINAL<br/>
+                Static portfolio-like web terminal project with GitHub profile and projects integration.<br/>
+                Available commands: help, profile, projects, contact, social media, clear.
+            `;
+        }else{
+            cat.innerHTML = `'${fileName}' file not found.`;
+        }
+
+        main.appendChild(cat);
+        return;
+    }
+
+    switch (normalizedAction) {
         case "clear":
             main.innerHTML = '';
+            break;
+        case "about":
+            const about = document.createElement('div');
+            about.innerHTML = `
+                Web-Terminal portfolio interface by Ernane.<br/>
+                Type <b>help</b> to view available commands.
+            `;
+            main.appendChild(about);
+            break;
+        case "version":
+            const version = document.createElement('div');
+            version.innerText = currentDeployedVersion ? `v${currentDeployedVersion}` : 'version unavailable';
+            main.appendChild(version);
+            break;
+        case "date":
+        case "time":
+            const dt = document.createElement('div');
+            dt.innerText = new Date().toString();
+            main.appendChild(dt);
+            break;
+        case "whoami":
+            const whoami = document.createElement('div');
+            whoami.innerText = user?.login || 'guest';
+            main.appendChild(whoami);
+            break;
+        case "pwd":
+            const pwd = document.createElement('div');
+            pwd.innerText = '/home/ernane/web-terminal';
+            main.appendChild(pwd);
+            break;
+        case "ls":
+            const ls = document.createElement('div');
+            ls.innerText = 'README.md  profile  projects  contact  social-media';
+            main.appendChild(ls);
             break;
         case "projects":
             const projects = document.createElement("div");
@@ -128,6 +198,14 @@ function exec(action){
             help.innerHTML = `
             <div>
                 CLEAR<br/>
+                ABOUT<br/>
+                VERSION<br/>
+                DATE / TIME<br/>
+                ECHO [TEXT]<br/>
+                WHOAMI<br/>
+                PWD<br/>
+                LS<br/>
+                CAT README.MD<br/>
                 PROJECTS<br/>
                 PROFILE<br/>
                 CONTACT<br/>
@@ -137,6 +215,14 @@ function exec(action){
             </div>
             <div>
                 Clear all screen content <br>
+                Show information about this web terminal<br>
+                Shows currently deployed version from version.json<br>
+                Shows current date/time<br>
+                Prints text in terminal<br>
+                Shows current user<br>
+                Shows current virtual directory path<br>
+                Lists available virtual files/sections<br>
+                Shows basic README content<br>
                 Shows the top 10 projects from Ernane's profile on github <br>
                 Shows a preview of the profile on GitHub.<br>
                 Shows contacts like email and cell phone number<br>
@@ -176,7 +262,7 @@ function exec(action){
             main.appendChild(v);
             break;
         default:
-        element.innerHTML = `Ernane:~ Web-Terminal$  ${action}<br>'${action}' is not recognized as an internal or external command, an operable program or a batch file.`
+        element.innerHTML = `Ernane:~ Web-Terminal$  ${rawAction}<br>'${rawAction}' is not recognized as an internal or external command, an operable program or a batch file.`
         break;
     }
 }
