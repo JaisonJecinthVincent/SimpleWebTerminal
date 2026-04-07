@@ -126,7 +126,8 @@ function showHelp() {
         PROFILE<br>
         HELP<br>
         WELP<br>
-        DIR
+        DIR<br>
+        curl<br>
     `;
     main.appendChild(help);
 }
