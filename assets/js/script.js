@@ -128,6 +128,7 @@ function showHelp() {
         WELP<br>
         DIR<br>
         curl<br>
+        npm<br>
     `;
     main.appendChild(help);
 }
